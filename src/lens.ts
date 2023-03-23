@@ -37,12 +37,6 @@ export const lens = function <A, T extends Object>(key: keyof T): Lens<A, T> {
 	return l
 }
 
-export function view<A, T>(l: Lens<A, T>, obj: T): A {
-	return l.get(obj)
-}
-export function set<A, T>(l: Lens<A, T>, obj: T, value: A): T {
-	return l.set(obj)(value)
-}
 export function over<A, T>(l: Lens<A, T>, f: (x: A) => A, obj: T) {
 	return l.set(obj)(f(l.get(obj)))
 }
@@ -68,4 +62,4 @@ export function pick<T extends Object, K extends keyof T>(keys: K[]) {
 	return l
 }
 
-export const Lens = { view, set, over, pick }
+export const Lens = { over, pick }

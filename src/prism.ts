@@ -40,12 +40,6 @@ export const prism = function <A, T extends Object>(key: keyof T) {
 	return p
 }
 
-export function view<A, T>(p: Prism<A, T>, obj: T) {
-	return p.get(obj)
-}
-export function set<A, T>(p: Prism<A, T>, obj: T, value: Nullable<A>) {
-	return p.set(obj)(value)
-}
 export function over<A, T>(p: Prism<A, T>, f: (x: Nullable<A>) => Nullable<A>, obj: T) {
 	return p.set(obj)(f(p.get(obj)))
 }
@@ -77,4 +71,4 @@ export function pick<T extends Object, K extends keyof T>(keys: K[]) {
 	return p
 }
 
-export const Prism = { view, set, over, pick }
+export const Prism = { over, pick }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { Address, company, Customer, customer, userAddress } from "./data"
-import { view, set, over, pick, lens } from "./lens"
+import { over, pick, lens } from "./lens"
 
 const LName = lens<string, { name: string }>("name")
 const LNumber = lens<number, { number: number }>("number")
@@ -10,18 +10,18 @@ const LAddressNumber = LAddress.compose(LNumber)
 
 describe("Lens", () => {
 	it("view", () => {
-		expect(view(LName, customer)).toEqual("will joe")
+		expect(LName.get(customer)).toEqual("will joe")
 		expect(LAddress.get(customer)).toEqual(userAddress)
 
 		expect(LAddressNumber.get(customer)).toEqual(54)
 	})
 	it("set", () => {
-		expect(set(LName, customer, "John Smith")).toEqual({
+		expect(LName.set(customer)("John Smith")).toEqual({
 			...customer,
 			name: "John Smith",
 		})
 
-		expect(set(LAddressNumber, customer, 42)).toEqual({
+		expect(LAddressNumber.set(customer)(42)).toEqual({
 			...customer,
 			address: { ...customer.address, number: 42 },
 		})

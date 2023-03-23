@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { company2, company, Company, customer, customer2, Address, address, userAddress, Customer } from "./data"
-import { view, set, over, prism, pick } from "./prism"
+import { over, prism, pick } from "./prism"
 
 const PCompany = prism<Company, { company?: Company }>("company")
 const PAddress = prism<Address, { address?: Address }>("address")
@@ -11,26 +11,26 @@ const PCompanyAddressNumber = PCompanyAddress.compose(PNumber)
 
 describe("Prism", () => {
 	it("view", () => {
-		expect(view(PCompany, customer)).toEqual(company)
-		expect(view(PCompany, customer2)).toEqual(undefined)
+		expect(PCompany.get(customer)).toEqual(company)
+		expect(PCompany.get(customer2)).toEqual(undefined)
 
-		expect(view(PAddress, customer2)).toEqual(userAddress)
+		expect(PAddress.get(customer2)).toEqual(userAddress)
 
-		expect(view(PCompanyAddress, customer2)).toEqual(undefined)
+		expect(PCompanyAddress.get(customer2)).toEqual(undefined)
 
-		expect(view(PCompanyAddressNumber, customer2)).toEqual(undefined)
-		expect(view(PCompanyAddressNumber, customer)).toEqual(2)
+		expect(PCompanyAddressNumber.get(customer2)).toEqual(undefined)
+		expect(PCompanyAddressNumber.get(customer)).toEqual(2)
 	})
 	it("set", () => {
-		expect(set(PCompany, customer2, company)).toEqual({ ...customer2, company })
-		expect(set(PCompany, customer, company2)).toEqual({ ...customer, company: company2 })
+		expect(PCompany.set(customer2)(company)).toEqual({ ...customer2, company })
+		expect(PCompany.set(customer)(company2)).toEqual({ ...customer, company: company2 })
 
-		expect(set(PCompanyAddress, customer, userAddress)).toEqual({
+		expect(PCompanyAddress.set(customer)(userAddress)).toEqual({
 			...customer,
 			company: { ...company, address: userAddress },
 		})
 
-		expect(set(PCompanyAddressNumber, customer, 1)).toEqual({
+		expect(PCompanyAddressNumber.set(customer)(1)).toEqual({
 			...customer,
 			company: { ...company, address: { ...address, number: 1 } },
 		})
@@ -54,20 +54,21 @@ describe("Prism", () => {
 			...customer,
 			company: { ...company, address: { ...address, number: 3 } },
 		})
-	})
+	}) 
+
 
 	it("pick", () => {
 		const lNameAndCompany = pick<Pick<Customer, "name" | "company">, "name" | "company">(["name", "company"])
 
-		expect(view(lNameAndCompany, customer)).toEqual({ name: "will joe", company })
+		expect(lNameAndCompany.get(customer)).toEqual({ name: "will joe", company })
 
 		const expected = { name: "John Smith", company: company2 }
-		expect(set(lNameAndCompany, customer, expected)).toEqual({
+		expect(lNameAndCompany.set(customer)(expected)).toEqual({
 			...customer,
 			...expected,
 		})
 
-		const res = view(lNameAndCompany, customer2)
+		const res = lNameAndCompany.get(customer2)
 		expect(res).toEqual({ name: "will joe" })
 		// @ts-expect-error
 		expect(res?.address).toBeFalsy()
