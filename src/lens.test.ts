@@ -1,37 +1,48 @@
 import { describe, expect, it } from "vitest"
-import { Address, customer, userAddress } from "./data"
-import { Lens, lens } from "./lens"
+import { Address, company, customer, userAddress } from "./data"
+import { view, set, over, pick, lens } from "./lens"
 
 const LName = lens<string, { name: string }>("name")
 const LNumber = lens<number, { number: number }>("number")
 const LAddress = lens<Address, { address: Address }>("address")
 
+const LAddressNumber = LAddress.compose(LNumber)
+
 describe("Lens", () => {
 	it("view", () => {
-		expect(Lens.view(LName, customer)).toEqual("will joe")
+		expect(view(LName, customer)).toEqual("will joe")
 		expect(LAddress.get(customer)).toEqual(userAddress)
+
+		expect(LAddressNumber.get(customer)).toEqual(54)
 	})
 	it("set", () => {
-		expect(Lens.set(LName, customer, "John Smith")).toEqual({
+		expect(set(LName, customer, "John Smith")).toEqual({
 			...customer,
 			name: "John Smith",
+		})
+
+		expect(set(LAddressNumber, customer, 42)).toEqual({
+			...customer,
+			address: { ...customer.address, number: 42 },
 		})
 	})
 
 	it("over", () => {
-		expect(Lens.over(LName, (name) => name.toUpperCase(), customer)).toEqual({
+		expect(over(LName, (name) => name.toUpperCase(), customer)).toEqual({
 			...customer,
 			name: "WILL JOE",
 		})
+
+		expect(over(LAddressNumber, (n) => n + 2, customer)).toEqual({
+			...customer,
+			address: { ...customer.address, number: customer.address.number + 2 },
+		})
 	})
 
-	const LAddressNumber = LAddress.compose(LNumber)
-
-	it("compose", () => {
-		expect(LAddressNumber.get(customer)).toEqual(54)
-		expect(Lens.set(LAddressNumber, customer, 42)).toEqual({
-			...customer,
-			address: { ...customer.address, number: 42 },
-		})
+	it("pick", () => {
+		const res = pick(["name", "company"], customer)
+		expect(res).toEqual({ name: "will joe", company })
+		// @ts-expect-error
+		expect(res.address).toBeFalsy()
 	})
 })

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { company2, company, Company, customer, customer2, Address, userAddress } from "./data"
-import { Prism, prism } from "./prism"
+import { company2, company, Company, customer, customer2, Address, address, userAddress } from "./data"
+import { view, set, over, prism, pick } from "./prism"
 
 const PCompany = prism<Company, { company?: Company }>("company")
 const PAddress = prism<Address, { address?: Address }>("address")
@@ -11,25 +11,57 @@ const PCompanyAddressNumber = PCompanyAddress.compose(PNumber)
 
 describe("Prism", () => {
 	it("view", () => {
-		expect(Prism.view(PCompany, customer)).toEqual(company)
-		expect(Prism.view(PCompany, customer2)).toEqual(undefined)
+		expect(view(PCompany, customer)).toEqual(company)
+		expect(view(PCompany, customer2)).toEqual(undefined)
 
-		expect(Prism.view(PAddress, customer2)).toEqual(userAddress)
+		expect(view(PAddress, customer2)).toEqual(userAddress)
 
-		expect(Prism.view(PCompanyAddress, customer2)).toEqual(undefined)
+		expect(view(PCompanyAddress, customer2)).toEqual(undefined)
 
-		expect(Prism.view(PCompanyAddressNumber, customer2)).toEqual(undefined)
-		expect(Prism.view(PCompanyAddressNumber, customer)).toEqual(2)
+		expect(view(PCompanyAddressNumber, customer2)).toEqual(undefined)
+		expect(view(PCompanyAddressNumber, customer)).toEqual(2)
 	})
 	it("set", () => {
-		expect(Prism.set(PCompany, customer2, company)).toEqual({ ...customer2, company })
-		expect(Prism.set(PCompany, customer, company2)).toEqual({ ...customer, company: company2 })
+		expect(set(PCompany, customer2, company)).toEqual({ ...customer2, company })
+		expect(set(PCompany, customer, company2)).toEqual({ ...customer, company: company2 })
+
+		expect(set(PCompanyAddress, customer, userAddress)).toEqual({
+			...customer,
+			company: { ...company, address: userAddress },
+		})
+
+		expect(set(PCompanyAddressNumber, customer, 1)).toEqual({
+			...customer,
+			company: { ...company, address: { ...address, number: 1 } },
+		})
 	})
 
 	it("over", () => {
-		expect(Prism.over(PCompany, (_) => ({ ...company, name: "company 2" }), customer2)).toEqual({
+		const expectedC = { ...company, name: "company 2" }
+		expect(over(PCompany, (_) => expectedC, customer2)).toEqual({ ...customer2, company: expectedC })
+
+		const expectedA = { ...address, street: "company 2" }
+		expect(over(PCompanyAddress, (_) => expectedA, customer2)).toEqual({
 			...customer2,
-			company: { ...company, name: "company 2" },
+			company: { address: expectedA },
 		})
+		expect(over(PCompanyAddressNumber, (n) => (n ? n + 1 : 1), customer2)).toEqual({
+			...customer2,
+			company: { address: { number: 1 } },
+		})
+
+		expect(over(PCompanyAddressNumber, (n) => (n ? n + 1 : 1), customer)).toEqual({
+			...customer,
+			company: { ...company, address: { ...address, number: 3 } },
+		})
+	})
+
+	it("pick", () => {
+		expect(pick(["name", "company"], customer)).toEqual({ name: "will joe", company })
+
+		const res = pick(["name", "company"], customer2)
+		expect(res).toEqual({ name: "will joe" })
+		// @ts-expect-error
+		expect(res?.address).toBeFalsy()
 	})
 })

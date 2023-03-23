@@ -1,3 +1,5 @@
+import { identity } from "./shared"
+
 export type LensGet<A, T> = <U extends A>(obj: T) => U
 export type LensSet<A, T> = <B extends A, V extends T>(obj: V) => (newValue: B) => V
 export type LensCompose<A, T> = <C>(lens: Lens<C, A>) => Lens<C, T>
@@ -35,8 +37,35 @@ export const lens = function <A, T extends Object>(key: keyof T): Lens<A, T> {
 	return l
 }
 
-export const Lens = {
-	view: <A, T>(l: Lens<A, T>, obj: T): A => l.get(obj),
-	set: <A, T>(l: Lens<A, T>, obj: T, value: A): T => l.set(obj)(value),
-	over: <A, T>(l: Lens<A, T>, f: (x: A) => A, obj: T) => l.set(obj)(f(l.get(obj))),
+export function view<A, T>(l: Lens<A, T>, obj: T): A {
+	return l.get(obj)
 }
+export function set<A, T>(l: Lens<A, T>, obj: T, value: A): T {
+	return l.set(obj)(value)
+}
+export function over<A, T>(l: Lens<A, T>, f: (x: A) => A, obj: T) {
+	return l.set(obj)(f(l.get(obj)))
+}
+
+export function pick<T extends Object, K extends keyof T>(keys: K[], obj: T) {
+	const l: Lens<Pick<T, K>, T> = createLens<Pick<T, K>, T>(
+		<U = T[K]>(o: T) => {
+			let newObj: { [key in K]?: any } = {}
+
+			Object.keys(o).forEach((key) => {
+				const k = key as K
+				if (keys.includes(k)) newObj[k] = o[k]
+			})
+
+			return newObj as U
+		},
+		<B extends Pick<T, K>, V extends T>(o: V) =>
+			(_: B) =>
+				identity(o),
+		<C>(l2: Lens<C, Pick<T, K>>) => compose(l, l2),
+	)
+
+	return l.get(obj)
+}
+
+export const Lens = { view, set, over, pick }
