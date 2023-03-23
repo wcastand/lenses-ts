@@ -25,6 +25,7 @@ describe("Lens", () => {
 			name: "WILL JOE",
 		})
 	})
+
 	const LAddressNumber = LAddress.compose(LNumber)
 
 	it("compose", () => {
