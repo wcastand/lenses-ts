@@ -1,0 +1,47 @@
+{
+  "$schema": "./node_modules/rome/configuration_schema.json",
+  "files": {
+    "ignore": [
+      "node_modules/",
+      "build/",
+      "dist/",
+      "lib/",
+      "public/",
+      "ios/",
+      "android/",
+      "assets/",
+      ".expo/",
+      "yarn.lock",
+      "*.d.ts",
+      "*.json"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "semicolons": "asNeeded",
+      "trailingComma": "all"
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "lineWidth": 120,
+    "indentSize": 2,
+    "indentStyle": "tab"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "useBlockStatements": "off",
+        "noImplicitBoolean": "off"
+      }
+    }
+  }
+}
