@@ -1,5 +1,5 @@
-export type LensGet<A, T> = (obj: T) => A
-export type LensSet<A, T> = (obj: T) => (newValue: A) => T
+export type LensGet<A, T> = <U extends A>(obj: T) => U
+export type LensSet<A, T> = <B extends A, V extends T>(obj: V) => (newValue: B) => V
 export type LensCompose<A, T> = <C>(lens: Lens<C, A>) => Lens<C, T>
 
 export interface Lens<A, T> {
@@ -14,10 +14,12 @@ export const lens = <A, T>(get: LensGet<A, T>, set: LensSet<A, T>, compose: Lens
 	compose,
 })
 
-export const compose = <A, C, T>(lens1: Lens<A, T>, lens2: Lens<C, A>) => {
+export const compose = <A, T, C>(lens1: Lens<A, T>, lens2: Lens<C, A>) => {
 	const l1: Lens<C, T> = lens<C, T>(
-		(obj: T): C => lens2.get(lens1.get(obj)),
-		(obj: T) => (value: C): T => lens1.set(obj)(lens2.set(lens1.get(obj))(value)),
+		<U extends C>(obj: T): U => lens2.get(lens1.get(obj)),
+		<B extends C, V extends T>(obj: V) =>
+			(value: B): V =>
+				lens1.set(obj)(lens2.set(lens1.get(obj))(value)),
 		<U>(other: Lens<U, C>) => compose(l1, other),
 	)
 	return l1
@@ -25,9 +27,10 @@ export const compose = <A, C, T>(lens1: Lens<A, T>, lens2: Lens<C, A>) => {
 
 export const propLens = function <A, T extends Object>(key: keyof T): Lens<A, T> {
 	const l: Lens<A, T> = lens(
-		(obj: T): A => obj[key] as A,
-		(obj: T) => (value: A): T => ({ ...obj, [key]: value }),
-		<C>(l2: Lens<C, A>) => compose<A, C, T>(l, l2),
+		<U extends A>(obj: T): U => obj[key] as U,
+		<B extends A, V extends T>(obj: V) =>
+			(value: B): V => ({ ...obj, [key]: value }),
+		<C>(l2: Lens<C, A>) => compose(l, l2),
 	)
 	return l
 }
