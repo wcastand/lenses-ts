@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { company2, company, Company, customer, customer2, Address, address, userAddress } from "./data"
+import { company2, company, Company, customer, customer2, Address, address, userAddress, Customer } from "./data"
 import { view, set, over, prism, pick } from "./prism"
 
 const PCompany = prism<Company, { company?: Company }>("company")
@@ -57,9 +57,17 @@ describe("Prism", () => {
 	})
 
 	it("pick", () => {
-		expect(pick(["name", "company"], customer)).toEqual({ name: "will joe", company })
+		const lNameAndCompany = pick<Pick<Customer, "name" | "company">, "name" | "company">(["name", "company"])
 
-		const res = pick(["name", "company"], customer2)
+		expect(view(lNameAndCompany, customer)).toEqual({ name: "will joe", company })
+
+		const expected = { name: "John Smith", company: company2 }
+		expect(set(lNameAndCompany, customer, expected)).toEqual({
+			...customer,
+			...expected,
+		})
+
+		const res = view(lNameAndCompany, customer2)
 		expect(res).toEqual({ name: "will joe" })
 		// @ts-expect-error
 		expect(res?.address).toBeFalsy()

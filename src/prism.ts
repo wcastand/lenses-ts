@@ -50,11 +50,11 @@ export function over<A, T>(p: Prism<A, T>, f: (x: Nullable<A>) => Nullable<A>, o
 	return p.set(obj)(f(p.get(obj)))
 }
 
-export function pick<T extends Object, K extends keyof T>(keys: K[], obj: T) {
+export function pick<T extends Object, K extends keyof T>(keys: K[]) {
 	const p: Prism<Pick<T, K>, T> = createPrism<Pick<T, K>, T>(
 		<U = T[K]>(o: Nullable<T>) => {
 			let newObj: { [key in K]?: any } = {}
-
+			if (!o) return newObj as U
 			Object.keys(o).forEach((key) => {
 				const k = key as K
 				if (keys.includes(k)) newObj[k] = o?.[k] ?? undefined
@@ -62,13 +62,19 @@ export function pick<T extends Object, K extends keyof T>(keys: K[], obj: T) {
 
 			return newObj as U
 		},
-		<B extends Pick<T, K>, V extends T>(o: Nullable<V>) =>
-			(_: B) =>
-				identity(o),
+		<V extends T, B = Pick<T, K>>(o: Nullable<V>) =>
+			(value: Nullable<B>) => {
+				const newObj: { [key in keyof T]?: any } = { ...o }
+				for (const key of keys) {
+					const k = key as unknown as keyof B
+					if (value?.[k]) newObj[key] = value[k]
+				}
+				return newObj as Nullable<V>
+			},
 		<C>(p2: Prism<C, Pick<T, K>>) => compose(p, p2),
 	)
 
-	return p.get(obj)
+	return p
 }
 
 export const Prism = { view, set, over, pick }

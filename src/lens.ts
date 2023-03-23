@@ -47,7 +47,7 @@ export function over<A, T>(l: Lens<A, T>, f: (x: A) => A, obj: T) {
 	return l.set(obj)(f(l.get(obj)))
 }
 
-export function pick<T extends Object, K extends keyof T>(keys: K[], obj: T) {
+export function pick<T extends Object, K extends keyof T>(keys: K[]) {
 	const l: Lens<Pick<T, K>, T> = createLens<Pick<T, K>, T>(
 		<U = T[K]>(o: T) => {
 			let newObj: { [key in K]?: any } = {}
@@ -65,7 +65,7 @@ export function pick<T extends Object, K extends keyof T>(keys: K[], obj: T) {
 		<C>(l2: Lens<C, Pick<T, K>>) => compose(l, l2),
 	)
 
-	return l.get(obj)
+	return l
 }
 
 export const Lens = { view, set, over, pick }

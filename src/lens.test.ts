@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { Address, company, customer, userAddress } from "./data"
+import { Address, company, Customer, customer, userAddress } from "./data"
 import { view, set, over, pick, lens } from "./lens"
 
 const LName = lens<string, { name: string }>("name")
@@ -40,7 +40,8 @@ describe("Lens", () => {
 	})
 
 	it("pick", () => {
-		const res = pick(["name", "company"], customer)
+		const LNameAndCompany = pick<Pick<Customer, "name" | "company">, "name" | "company">(["name", "company"])
+		const res = LNameAndCompany.get(customer)
 		expect(res).toEqual({ name: "will joe", company })
 		// @ts-expect-error
 		expect(res.address).toBeFalsy()
