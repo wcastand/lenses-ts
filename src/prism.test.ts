@@ -21,6 +21,7 @@ describe("Prism", () => {
 		expect(PCompanyAddressNumber.get(customer2)).toEqual(undefined)
 		expect(PCompanyAddressNumber.get(customer)).toEqual(2)
 	})
+
 	it("set", () => {
 		expect(PCompany.set(customer2)(company)).toEqual({ ...customer2, company })
 		expect(PCompany.set(customer)(company2)).toEqual({ ...customer, company: company2 })
@@ -33,6 +34,9 @@ describe("Prism", () => {
 		expect(PCompanyAddressNumber.set(customer)(1)).toEqual({
 			...customer,
 			company: { ...company, address: { ...address, number: 1 } },
+		})
+		expect(PCompanyAddressNumber.set({})(1)).toEqual({
+			company: { address: { number: 1 } },
 		})
 	})
 
@@ -54,8 +58,7 @@ describe("Prism", () => {
 			...customer,
 			company: { ...company, address: { ...address, number: 3 } },
 		})
-	}) 
-
+	})
 
 	it("pick", () => {
 		const lNameAndCompany = pick<Pick<Customer, "name" | "company">, "name" | "company">(["name", "company"])

@@ -1,5 +1,3 @@
-import { identity } from "./shared"
-
 export type Nullable<T> = T | undefined | null
 
 export type PrismGet<A, T> = <U extends A>(obj: Nullable<T>) => Nullable<U>
