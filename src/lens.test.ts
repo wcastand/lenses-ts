@@ -3,6 +3,7 @@ import { address, Address, company, Company, Customer, customer, userAddress } f
 import { lens } from "./lens"
 
 const lName = lens<string>("name")
+
 const lNumber = lens<number>("number")
 const lAddress = lens<Address>("address")
 const lCompany = lens<Company>("company")
@@ -35,6 +36,7 @@ describe("Lens", () => {
 		expect(lName.get({ name: "John" })).toBe("John")
 		expect(lName.get({ name: "John", address: userAddress })).toBe("John")
 		expect(lName.get(customer)).toBe("will joe")
+
 		expect(lAddressNumber.get(customer)).toBe(54)
 		expect(lAddressNumber.get<Customer>(customer)).toBe(54)
 
@@ -54,6 +56,7 @@ describe("Lens", () => {
 		expect(lAddressNumber.set(1)(customer)).toEqual({ ...customer, address: { ...userAddress, number: 1 } })
 		expect(lAddressNumber.set(2)<Customer>(customer)).toEqual({ ...customer, address: { ...userAddress, number: 2 } })
 
+		expect(lName.set("Will")({})).toEqual({ name: "Will" })
 		// @ts-expect-error
 		expect(lName.set("Will")<Customer>({})).toEqual({ name: "Will" })
 	})
