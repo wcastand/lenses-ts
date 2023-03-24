@@ -37,6 +37,11 @@ describe("Lens", () => {
 		expect(lName.get({ name: "John", address: userAddress })).toBe("John")
 		expect(lName.get(customer)).toBe("will joe")
 
+		// Should typescript cry !
+		expect(lName.get({})).toThrow(Error)
+		// @ts-expect-error
+		expect(lName.get<Customer>({})).toThrow(Error)
+
 		expect(lAddressNumber.get(customer)).toBe(54)
 		expect(lAddressNumber.get<Customer>(customer)).toBe(54)
 
@@ -57,6 +62,7 @@ describe("Lens", () => {
 		expect(lAddressNumber.set(2)<Customer>(customer)).toEqual({ ...customer, address: { ...userAddress, number: 2 } })
 
 		expect(lName.set("Will")({})).toEqual({ name: "Will" })
+
 		// @ts-expect-error
 		expect(lName.set("Will")<Customer>({})).toEqual({ name: "Will" })
 	})
