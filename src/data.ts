@@ -9,12 +9,12 @@ export type Address = {
 
 export type Company = {
 	name: string
-	address?: Address
+	address: Address
 }
 
 export type Customer = {
 	name: string
-	company?: Company
+	company: Company
 	address: Address
 }
 
@@ -38,17 +38,9 @@ export const company: Company = {
 	name: "compents",
 	address,
 }
-export const company2: Company = {
-	name: "compents 2",
-}
 
 export const customer: Customer = {
 	name: "will joe",
 	company,
-	address: userAddress,
-}
-
-export const customer2: Customer = {
-	name: "will joe",
 	address: userAddress,
 }
