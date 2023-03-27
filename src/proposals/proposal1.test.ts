@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { Address, Company, Customer, customer } from "./data"
+import { Address, Company, Customer, customer } from "../data"
 import { compose, prop } from "./proposal1"
 
 const lCustomerName = prop<Customer, "name">("name")

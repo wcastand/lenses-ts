@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { company, customer } from "./data"
+import { company, customer } from "../data"
 import { init } from "./proposal3"
 
 describe("Experiment", () => {

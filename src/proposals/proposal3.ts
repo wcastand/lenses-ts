@@ -9,6 +9,7 @@ export const prop = <S, T, K extends keyof T>(key: K, l: Lens<S, T>, source: S) 
 	const lc = compose(l, lw)
 
 	return {
+		lens: lc,
 		get: () => lc.get(source),
 		set: (v: T[K]) => lc.set(v)(source),
 		prop: <V extends keyof T[K]>(key: V) => prop<S, T[K], V>(key, lc, source),
