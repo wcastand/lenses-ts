@@ -11,12 +11,12 @@
 ## Docs (lolz)
 
 
-### Lens
+### Proposal 1
 
 ```typescript
 
 type Address = {
-  street: string;
+  name: string
   number: number;
   city: string;
 }
@@ -32,13 +32,83 @@ const customer:Customer = {
   balance: 1000
 }
 
-const lName = lens<string>('name')
+const lCustomerName = prop<Customer, "name">("name")
+const lCustomerBalance = prop<Customer, "balance">("balance")
+const lCustomerAddress = prop<Customer, "address">("address")
 
-// If no type given, will infer from param, careful if you send bad data
-lName.get(customer) // 'John Snow'
-lName.get({}) // will throw and error at runtime since it infer (type your things)
+const lAddressNumber = prop<Address, "number">("number")
+const lAddressName = prop<Address, "name">("name")
+
+const lCustomerAddressNumber = compose(lCustomerAddress, lAddressNumber)
+const lCustomerAddressName = compose(lCustomerAddress, lAddressName)
+
+lCustomerName.get(customer)
+lCustomerName.set("new name")(customer)
+
+lCustomerAddressName.get(customer)
+```
+
+### Proposal 2
+
+```typescript
+
+type Address = {
+  name: string
+  number: number;
+  city: string;
+}
+
+type Customer = {
+  name: string;
+  balance: number;
+  address?: Address;
+}
+
+const customer:Customer = {
+  name: 'John Snow',
+  balance: 1000
+}
+
+const lName = prop<string, "name">("name")
+const lNumber = prop<number, "number">("number")
+const lAddress = prop<Address, "address">("address")
+const lBalance = prop<number, "balance">("balance")
 
 
-lName.get<Customer>(customer) // 'John Snow'
-lName.get<Customer>({}) // Typscript will cry
+const lCustomerAddressNumber = compose(lAddress, lNumber)
+const lCustomerAddressName = compose(lAddress, lName)
+
+lName.get(customer)
+lName.set("new name")(customer)
+
+lCustomerAddressName.get(customer)
+```
+
+### Proposal 3
+
+```typescript
+
+type Address = {
+  name: string
+  number: number;
+  city: string;
+}
+
+type Customer = {
+  name: string;
+  balance: number;
+  address?: Address;
+}
+
+const customer:Customer = {
+  name: 'John Snow',
+  balance: 1000
+}
+
+const l = init(customer)
+
+const name = l.prop('name').get()
+const newC = l.prop('name).set("new name")
+
+const customerAddressName = l.prop('address').prop('name').get()
 ```
